@@ -57,6 +57,10 @@ app.get('/todos/:id',(req,res)=>{
 	});
 });
 
+app.get('/',(req,res)=>{
+	res.send('todo api');
+})
+
 // get users
 app.get('/users',(req,res)=>{
 	User.find().then((doc)=>{
