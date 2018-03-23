@@ -1,9 +1,3 @@
-const {ObjectID} = require('mongodb');
-var express=require('express');
-var bodyParser=require('body-parser');
-var mongoose=require('./db/mongoose.js');
-var Item=require('./models/keyword.js');
-
 var chemistryTableInitialStr = '<table class="topicListBox innerPage"><tbody><tr><td class="headingBox" style="text-align: center; padding: 10px;" colspan="2"><b><a href="https://byjus.com/chemistry/chemistry-article/">More Chemistry Articles</a></b></td></tr>';
 var chemistryTableFinalStr = '</tbody></table>';
 var chemistryTabledummyStr = '<td class="contentBox" style="text-align: center;"><a href="%link%">%title%</a></td>';
@@ -13,23 +7,41 @@ String.prototype.replaceAll = function (search, replacement) {
     return target.replace(new RegExp(search, 'g'), replacement);
 };
 
+const {ObjectID} = require('mongodb');
+var express=require('express');
+var bodyParser=require('body-parser');
+
+var mongoose=require('./db/mongoose.js');
+var Todo=require('./models/todo.js');
+var User=require('./models/user.js');
+var Item=require('./models/keyword.js');
+
 var app=express();
+
 
 const port=process.env.PORT || 5000;
 
-app.use(bodyParser.json());
+app.use(bodyParser.json()); // for parsing application/json
+app.use(bodyParser.urlencoded({ extended: true }));
 
+// post Todos
+app.post('/todos',(req,res)=>{
+  var todo=new Todo({
+    text: req.body.text
+  });
+  todo.save().then((doc)=>{
+    res.send(doc);
+  },(e)=>{
+    res.status(400).send(e);
+  });
+});
 
-app.get('/',(req,res)=>{
-	res.send('todo api');
-})
-
-
-app.post('/getNcertWidget',(req,res)=>{
-	    try {
+app.post('/ncertWidget',(req,res)=>{
+    try {
         var jumpValue = 4;
 
-        var reqUrl = req.body.url;
+        const reqUrl = req.body.url;
+        console.log(reqUrl);
         if (!reqUrl) {
             res.status(404).send({
                 status: false,
@@ -37,10 +49,6 @@ app.post('/getNcertWidget',(req,res)=>{
             })
             return;
         }
-
-        /*if (reqUrl[reqUrl.length - 1] == '/') {
-         reqUrl = reqUrl.substr(0, reqUrl.length - 1);
-         }*/
         var category;
 
         Item.findOne({
@@ -97,8 +105,47 @@ app.post('/getNcertWidget',(req,res)=>{
             message: "Something went wrong"
         })
     }
-
 });
+
+app.get('/',(req,res)=>{
+	res.send('todo api');
+})
+
+// get Todos
+app.get('/items',(req,res)=>{
+	Item.find().then((items)=>{
+		res.send({
+			items:items
+		});
+	},(err)=>{
+		res.status(400).send(err);
+	});
+});
+
+// get Todos by id
+app.get('/todos/:id',(req,res)=>{
+	const todoId=req.params.id;
+	if(!ObjectID.isValid(todoId))
+	{
+	    return res.status(404).send();
+	}
+	Todo.findById(todoId).then((todo)=>{
+		if(!todo)
+		{
+			return res.status(404).send();
+		}
+		else{
+			res.send({todo});
+		}
+		
+	}).catch((err)=>{
+		res.status(400).send();
+	});
+});
+
+app.get('/',(req,res)=>{
+	res.send('todo api');
+})
 
 function findIndexOf(url, items) {
     for (i = 0; items.length; i++) {
@@ -107,7 +154,6 @@ function findIndexOf(url, items) {
     }
     return -1;
 }
-
 
 
 app.listen(port,()=>{
