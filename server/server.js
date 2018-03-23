@@ -2,7 +2,7 @@ const {ObjectID} = require('mongodb');
 var express=require('express');
 var bodyParser=require('body-parser');
 var mongoose=require('./db/mongoose.js');
-var Keyword=require('./models/keyword.js');
+var Item=require('./models/keyword.js');
 
 var chemistryTableInitialStr = '<table class="topicListBox innerPage"><tbody><tr><td class="headingBox" style="text-align: center; padding: 10px;" colspan="2"><b><a href="https://byjus.com/chemistry/chemistry-article/">More Chemistry Articles</a></b></td></tr>';
 var chemistryTableFinalStr = '</tbody></table>';
