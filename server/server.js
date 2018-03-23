@@ -25,6 +25,10 @@ app.post('/todos',(req,res)=>{
   });
 });
 
+app.get('/',(req,res)=>{
+	res.send('todo api');
+})
+
 // get Todos
 app.get('/todos',(req,res)=>{
 	Todo.find().then((todos)=>{
